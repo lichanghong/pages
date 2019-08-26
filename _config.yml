@@ -4,16 +4,14 @@
 
 # Site
 title: 李长鸿
-subtitle:
-description:
+subtitle: Talk is cheap,Show me the girl.
+description: Talk is cheap,Show me the girl.
 keywords:
 author: 李长鸿
-language: zh-CN
+language: zh-Hans
 timezone:
 
 # URL
-
-
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
 url: http://hehuoya.com
 root: /
@@ -75,12 +73,44 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: yilia
+theme: next
 
+jsonContent:
+    meta: false
+    pages: false
+    posts:
+      title: true
+      date: true
+      path: true
+      text: false
+      raw: false
+      content: false
+      slug: false
+      updated: false
+      comments: false
+      link: false
+      permalink: false
+      excerpt: false
+      categories: false
+      tags: true
+      
+search:
+  path: search.xml
+  field: post
+  format: html
+  limit: 10000’
+
+algolia:
+  applicationID: '6FW5HE4YX0'
+  apiKey: '2da9e7fa78cd975d91c8dd47490308f6'
+  adminApiKey: 'd0e1835e4e4c5021353d7d6446d84360'
+  indexName: 'github'
+  chunkSize: 5000
+  
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy: 
   type: git 
-  repo: git@github.com:lichanghong/lichanghong.github.io.git
-  branch: master 
+  repo: https://github.com/lichanghong/lichanghong.github.io.git
+  branch: master
 

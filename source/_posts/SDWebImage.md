@@ -1,0 +1,37 @@
+---
+title: SDWebImage
+date: 2019-08-25 18:32:10
+tags:
+---
+
+
+## SDWebImage实现原理详解
+`框架的主要作用：能够异步下载图片并且支持缓存`
+
+1. 入口UIImageView调用方法sd_setImageWithURL: placeholderImage: options: progress:completed:，无论你调用哪个，最终都转换成该方法处理url
+2. 必须先删除该控件之前的下载任务，sd_cancelCurrentImageLoad原因是当你网络不快的情况下，例如你一个屏幕能展示三个cell，第一个cell由于网络问题不能立刻下完，那么用户就滑动了tbv，第一个cell进去复用池，第五个出来的cell从复用池子拿，由于之前的下载还在，本来是应该显示第五个图片，但是SD的默认做法是立马把下载好的图片给UIImageView，所以这时候会图片数据错乱，BUG
+3. 有placeHolder先展示，然后启用SDWebImageManager单例downloadImageWithURLoptions:progress:completed:来处理图片下载
+4. 先判断url的合法性，再创建SDwebImageCombinedOperation的cache任务对象，再查看url是否之前下载失败过，最后如果url为nil，则直接返回操作对象完成回调，如果都正常，那么就调用SDWebImageManager中的管理缓存类SDImageCache单例的方法queryDiskCacheForKey:done:查看是否有缓存
+5. SDImageCache内存缓存用的是NSCache，Disk缓存用的是NSFileManager的文件写入操作，那么查看缓存的时候是先去内存查找，这里的key都是经过MD5之后的字串，找到直接回调，没找到继续去磁盘查找，开异步串行队列去找，避免卡死主线程，启用autoreleasepool避免内存暴涨，查到了缓存到内存，然后回调
+6. 如果都没找到，就调用SDWebImageManager中的管理下载类SDWebImageDownloader单例
+downloadImageWithURL:options:progress:completed:completedBlock处理下载
+7. 下载前调用addProgressCallback:completedBlock:forURL:createCallback:来保证统一url只会生成一个网络下载对象，多余的都只会用URLCallbacks存储传入的进度Block或者CompleteBlock，因此下载结果返回的时候会进行遍历回调
+8. 下载用NSOperation和NSOperationQueue来进行，SD派生了一个SDWebImageDownloaderOperation负责图片的下载任务，调用
+initWithRequest:inSession:options:progress:completed:cancelled:
+9. 把返回的SDWebImageDownloaderOperation对象add到NSOperationQueue，FIFO队列就正常，如果是LIFO队列，就需要设置依赖，这也是GCD和NSOperation的区别，也是NSOperation的优点，让上一次的任务依赖于本次任务[wself.lastAddedOperationaddDependency:operation]
+10. 下载任务开始是用NSURLSession了，不用NSURLConnetion了，由于SD是自定义的NSOperation
+内部需要重写start方法，在该方法里面配置Session，当taskResume的时候，根据设置的代理就能取到不同的回调参数
+didReceiveResponse能获取到响应的所有参数规格，例如总size
+didReceiveData是一步步获取data，压缩解码回调progressBlock
+didCompleteWithError全部完成回调，图片解码，回调completeBlock
+11. 图片的解码是在SDWebImageDecoder里面完成的，缩放操作是在SDWebImageCompat内完成的，代理方法里面本身就已经是异步了，而且解码操作加入了autoreleasepool减少内存峰值
+这方面知识还是需要进一步去了解，不是图片压缩解码不是很懂
+12. 当在SDWebImageDownloaderOperation中NSURLSession完成下载之后或者中途回调到SDWebImageDownloader中，然后再回调到SDWebImageManager，在Manager中二级缓存image，然后继续回调出去到UIImage + WebCache中，最后把Image回调出去，在调用的控件中展示出来
+13. SDImageCache初始化的时候注册了几个通知，当内存警告的时候，程序进入后台或者程序杀死的时候根据策略清理缓存
+内存警告：自动清除NSCache内存缓存
+进入后台和程序杀死：清理过期的文件（默认一周）,然后有个缓存期望值，对比已有文件的大小，先根据文件最后编辑时间升序排，把大于期望值大小的文件全部杀掉
+
+![](http://images2015.cnblogs.com/blog/913387/201603/913387-20160318193517553-1664793964.png)
+![](http://upload-images.jianshu.io/upload_images/656644-7dfe370a86e157e7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+

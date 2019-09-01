@@ -1,6 +1,7 @@
 ---
 title: 消息机制
 date: 2019-08-25 18:26:15
+categories: "iOS面试必看"
 tags:
 ---
 

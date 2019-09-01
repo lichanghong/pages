@@ -1,7 +1,8 @@
 ---
 title: Category&KVO的实现原理可以从runtime来分析
 date: 2019-08-25 18:24:45
-tags:
+categories: "iOS面试必看"
+tags: "iOS架构"
 ---
 
 

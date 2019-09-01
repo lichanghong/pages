@@ -1,8 +1,8 @@
 ---
 title: 简单基础
 date: 2019-08-25 18:27:20
-tags:
-type: "这是分类"
+tags: "iOS基础"
+categories: "iOS基础"
 ---
 
 ## json to dic , arr to json

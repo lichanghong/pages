@@ -1,6 +1,5 @@
 ---
-title: 分类title
+title: 功能分类
 date: 2019-08-25 16:36:39
-type: "这是分类"
-comments: false
+type: "categories"
 ---

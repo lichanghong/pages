@@ -1,6 +1,7 @@
 ---
 title: load & initialize
 date: 2019-08-25 18:22:45
+categories: "iOS面试必看"
 tags:
 ---
 

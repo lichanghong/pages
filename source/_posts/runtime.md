@@ -1,6 +1,7 @@
 ---
 title: runtime总结
 date: 2019-08-25 18:23:58
+categories: "iOS面试必看"
 tags:
 ---
 

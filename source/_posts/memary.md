@@ -1,6 +1,7 @@
 ---
 title: 内存相关
 date: 2019-08-25 18:28:08
+categories: "iOS面试必看"
 tags:
 ---
 
